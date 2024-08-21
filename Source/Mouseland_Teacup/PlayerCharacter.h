@@ -95,5 +95,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	ATeacupStage* TeacupStage;
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* SceneComponent;
+
+
 	
 };
