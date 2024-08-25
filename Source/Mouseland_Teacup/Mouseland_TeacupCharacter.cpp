@@ -60,7 +60,8 @@ void AMouseland_TeacupCharacter::BeginPlay()
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
+			UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
@@ -73,21 +74,26 @@ void AMouseland_TeacupCharacter::BeginPlay()
 void AMouseland_TeacupCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMouseland_TeacupCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this,
+		                                   &AMouseland_TeacupCharacter::Move);
 
 		// Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMouseland_TeacupCharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this,
+		                                   &AMouseland_TeacupCharacter::Look);
 	}
 	else
 	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		UE_LOG(LogTemplateCharacter, Error,
+		       TEXT(
+			       "'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+		       ), *GetNameSafe(this));
 	}
 }
 
@@ -104,7 +110,7 @@ void AMouseland_TeacupCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
+
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
@@ -122,7 +128,27 @@ void AMouseland_TeacupCharacter::Look(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		// add yaw and pitch input to controller
+		const auto ControlRotation = Controller->GetControlRotation();
 		AddControllerYawInput(LookAxisVector.X);
+		if (LookAxisVector.Y < 0)
+		{
+			if (ControlRotation.Pitch - LookAxisVector.Y >= 360.0f)
+			{
+				LookAxisVector.Y = 360.0f - ControlRotation.Pitch;
+			}
+			if (ControlRotation.Pitch <= 90.f)
+			{
+				LookAxisVector.Y = 0.0f;
+			}
+		}
+
 		AddControllerPitchInput(LookAxisVector.Y);
+		FRotator NewRotation = Controller->GetControlRotation();
+		if (NewRotation.Pitch <= 90.0f)
+		{
+			NewRotation.Pitch = 360.0f;
+		}
+		NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch, 270.0f, 360.0f);
+		Controller->SetControlRotation(NewRotation);
 	}
 }
