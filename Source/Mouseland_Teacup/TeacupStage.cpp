@@ -168,8 +168,6 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 
 
 			Subtitle->ShowSubtitleFromScript(NoTeacupText.ToString(), 8.0f);
-			PlayerCharacter->RemoveInventoryItem(RequireMouseFriendItemType, 1);
-
 			return;
 		}
 
