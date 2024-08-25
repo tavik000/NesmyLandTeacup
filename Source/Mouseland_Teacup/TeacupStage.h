@@ -94,7 +94,13 @@ public:
 	UTexture2D* StartSprite;
 	
 	UPROPERTY(EditAnywhere)
+	UTexture2D* PlaceSprite;
+	
+	UPROPERTY(EditAnywhere)
 	UTexture2D* CleanSprite;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* PlaceSound;
 	
 private:
 	FTimerHandle CheckAndUpdateWidgetVisibleTimer;

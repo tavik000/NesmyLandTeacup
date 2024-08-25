@@ -69,6 +69,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<ATeacup*> Teacups;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* PlaceSound;
 	
 private:
 	FTimerHandle CheckAndUpdateWidgetVisibleTimer;

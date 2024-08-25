@@ -89,6 +89,7 @@ void ATeacupCloset::Interact_Implementation(APlayerCharacter* InteractCharacter)
 			if (Teacup->IsHidden())
 			{
 				Teacup->SetActorHiddenInGame(false);
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PlaceSound, GetActorLocation());
 				return;
 			}
 		}

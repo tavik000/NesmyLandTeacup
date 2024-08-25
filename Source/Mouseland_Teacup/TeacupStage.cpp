@@ -65,6 +65,7 @@ void ATeacupStage::StartSpin()
 void ATeacupStage::StopSpin()
 {
 	RotatingMovementComponent->RotationRate = FRotator(0.0f, 0.0f, 0.0f);
+	InteractionHUD->SetSprite(CleanSprite);
 }
 
 void ATeacupStage::Tick(float DeltaTime)
@@ -115,8 +116,20 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 			{
 				if (Teacup->IsHidden())
 				{
+					if (!PlaceSound)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
+						                                 FString::Printf(TEXT("PlaceSound is null!")));
+					}
+					UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PlaceSound, GetActorLocation());
 					Teacup->SetActorHiddenInGame(false);
 					Teacup->SetActorEnableCollision(true);
+
+					if (CanStart() && !PlayerCharacter->HasItem(RequireTeacupItemType) && !PlayerCharacter->HasItem(
+						RequireMouseFriendItemType))
+					{
+						InteractionHUD->SetSprite(StartSprite);
+					}
 					return;
 				}
 			}
@@ -130,6 +143,19 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 			if (TryAddMouseFriend(PlayerCharacter))
 			{
 				PlayerCharacter->RemoveInventoryItem(RequireMouseFriendItemType, 1);
+
+				if (!PlaceSound)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
+					                                 FString::Printf(TEXT("PlaceSound is null!")));
+				}
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PlaceSound, GetActorLocation());
+
+				if (CanStart() && !PlayerCharacter->HasItem(RequireTeacupItemType) && !PlayerCharacter->HasItem(
+					RequireMouseFriendItemType))
+				{
+					InteractionHUD->SetSprite(StartSprite);
+				}
 				return;
 			}
 			if (!IsValid(Subtitle))
@@ -143,6 +169,7 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 
 			Subtitle->ShowSubtitleFromScript(NoTeacupText.ToString(), 8.0f);
 			PlayerCharacter->RemoveInventoryItem(RequireMouseFriendItemType, 1);
+
 			return;
 		}
 
@@ -179,6 +206,7 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 				Teacup->SetActorHiddenInGame(true);
 				Teacup->SetActorEnableCollision(false);
 				InteractCharacter->AddInventoryItem(RequireTeacupItemType, 1);
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PlaceSound, GetActorLocation());
 				return;
 			}
 		}
@@ -204,6 +232,10 @@ void ATeacupStage::ToggleOutline_Implementation(bool bValue)
 			RequireMouseFriendItemType))
 		{
 			InteractionHUD->SetSprite(StartSprite);
+		}
+		else
+		{
+			InteractionHUD->SetSprite(PlaceSprite);
 		}
 	}
 	else
