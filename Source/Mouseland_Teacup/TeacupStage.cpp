@@ -60,12 +60,14 @@ void ATeacupStage::BeginPlay()
 void ATeacupStage::StartSpin()
 {
 	RotatingMovementComponent->RotationRate = FRotator(0.0f, 30.0f, 0.0f);
+	OnStartSpin.Broadcast();
 }
 
 void ATeacupStage::StopSpin()
 {
 	RotatingMovementComponent->RotationRate = FRotator(0.0f, 0.0f, 0.0f);
 	InteractionHUD->SetSprite(CleanSprite);
+	OnStopSpin.Broadcast();
 }
 
 void ATeacupStage::Tick(float DeltaTime)

@@ -10,6 +10,10 @@
 #include "Interface/InteractableInterface.h"
 #include "TeacupStage.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartSpin);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStopSpin);
+
 UCLASS()
 class MOUSELAND_TEACUP_API ATeacupStage : public AActor, public IInteractableInterface
 {
@@ -101,6 +105,12 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	USoundBase* PlaceSound;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStartSpin OnStartSpin;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStopSpin OnStopSpin;
 	
 private:
 	FTimerHandle CheckAndUpdateWidgetVisibleTimer;
