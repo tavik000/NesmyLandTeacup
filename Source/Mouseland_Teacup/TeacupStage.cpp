@@ -42,6 +42,7 @@ void ATeacupStage::BeginPlay()
 	for (AActor* Teacup : Teacups)
 	{
 		Teacup->SetActorHiddenInGame(true);
+		Teacup->SetActorEnableCollision(false);
 	}
 
 	TArray<AActor*> FoundActors;
@@ -115,6 +116,7 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 				if (Teacup->IsHidden())
 				{
 					Teacup->SetActorHiddenInGame(false);
+					Teacup->SetActorEnableCollision(true);
 					return;
 				}
 			}
@@ -175,6 +177,7 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 			if (!Teacup->IsHidden())
 			{
 				Teacup->SetActorHiddenInGame(true);
+				Teacup->SetActorEnableCollision(false);
 				InteractCharacter->AddInventoryItem(RequireTeacupItemType, 1);
 				return;
 			}
