@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/BillboardComponent.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/Actor.h"
 #include "Interface/InteractableInterface.h"
 #include "PickupBase.generated.h"
