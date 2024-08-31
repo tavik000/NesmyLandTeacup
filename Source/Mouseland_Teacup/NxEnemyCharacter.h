@@ -23,4 +23,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+protected:
+	TArray<AActor*> HittingActorList;
+	UAnimInstance* AnimInstance;
+	
+private:
+	UCharacterMovementComponent* CharacterMovementComponent;
 };

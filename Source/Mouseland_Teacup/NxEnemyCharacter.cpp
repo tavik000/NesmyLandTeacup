@@ -3,6 +3,8 @@
 
 #include "NxEnemyCharacter.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 // Sets default values
 ANxEnemyCharacter::ANxEnemyCharacter()
@@ -15,7 +17,8 @@ ANxEnemyCharacter::ANxEnemyCharacter()
 void ANxEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	AnimInstance = GetMesh()->GetAnimInstance();
+	CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetCharacterMovement());
 }
 
 // Called every frame
