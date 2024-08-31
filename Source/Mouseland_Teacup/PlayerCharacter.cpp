@@ -10,6 +10,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interface/InteractableInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -31,12 +32,47 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	GetWorldTimerManager().SetTimer(FindInteractableTimerHandle, this,
 	                                &APlayerCharacter::FindAndHighlightInteractableObjectNearPlayer, 0.1f, true);
+
+	CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent());
+
+	WalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
+}
+
+bool APlayerCharacter::CanSprint() const
+{
+	return !IsJumping();
+}
+
+bool APlayerCharacter::CanSlow() const
+{
+	return !IsJumping();
+}
+
+bool APlayerCharacter::IsJumping() const
+{
+	return CharacterMovementComponent->IsFalling();
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (IsSprinting)
+	{
+		if (CurrentEnergy < SprintCostEnergyPerSec * DeltaTime)
+		{
+			OnSprintEnd();
+		}
+		else
+		{
+			CurrentEnergy = FMath::Min(MaxEnergy, CurrentEnergy - SprintCostEnergyPerSec * DeltaTime);
+		}
+	}
+	else
+	{
+		CurrentEnergy = FMath::Min(MaxEnergy, CurrentEnergy + EnergyRegenRate * DeltaTime);
+	}
 }
 
 // Called to bind functionality to input
@@ -49,6 +85,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		UE_LOG(LogTemp, Warning, TEXT("SetupPlayerInputComponent"));
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
 		                                   &APlayerCharacter::Interact);
+
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this,
+		                                   &APlayerCharacter::OnSprintStart);
+
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
+		                                   &APlayerCharacter::OnSprintEnd);
+
+		EnhancedInputComponent->BindAction(SlowAction, ETriggerEvent::Started, this,
+		                                   &APlayerCharacter::OnSlowStart);
+
+		EnhancedInputComponent->BindAction(SlowAction, ETriggerEvent::Completed, this,
+		                                   &APlayerCharacter::OnSlowEnd);
 	}
 }
 
@@ -72,6 +120,36 @@ void APlayerCharacter::Interact()
 			}
 		}
 	}
+}
+
+void APlayerCharacter::OnSprintStart()
+{
+	if (IsSprinting) return;
+	if (!CanSprint()) return;
+	IsSprinting = true;
+	CharacterMovementComponent->MaxWalkSpeed = SprintSpeed;
+}
+
+void APlayerCharacter::OnSprintEnd()
+{
+	if (!IsSprinting) return;
+	IsSprinting = false;
+	CharacterMovementComponent->MaxWalkSpeed = WalkSpeed;
+}
+
+void APlayerCharacter::OnSlowStart()
+{
+	if (IsSprinting) return;
+	if (!CanSlow()) return;
+	IsSlow = true;
+	CharacterMovementComponent->MaxWalkSpeed = SlowSpeed;
+}
+
+void APlayerCharacter::OnSlowEnd()
+{
+	if (!IsSlow) return;
+	IsSlow = false;
+	CharacterMovementComponent->MaxWalkSpeed = WalkSpeed;
 }
 
 void APlayerCharacter::FindAndHighlightInteractableObjectNearPlayer()
@@ -235,7 +313,6 @@ bool APlayerCharacter::UseSlotItem()
 
 void APlayerCharacter::GameOver()
 {
-
 	// Find Actor
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATeacupStage::StaticClass(), FoundActors);
@@ -246,8 +323,8 @@ void APlayerCharacter::GameOver()
 		return;
 	}
 	TeacupStage = Cast<ATeacupStage>(FoundActors[0]);
-	
-	
+
+
 	if (TeacupStage->GetTeacupCount() >= 1)
 	{
 		if (!GameOverWidgetClass)

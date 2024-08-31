@@ -24,6 +24,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	bool CanSprint() const;
+	bool CanSlow() const;
+	bool IsJumping() const;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -31,25 +35,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void Interact();
+	void OnSprintStart();
+	void OnSprintEnd();
+	void OnSlowStart();
+	void OnSlowEnd();
+
 	void FindAndHighlightInteractableObjectNearPlayer();
 	void AddInventoryItem(bool IsTeacup);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* InteractAction;
-	
-	TArray<AActor*> CloseActors;
-	AActor* FocusActor;
-	
-	FTimerHandle FindInteractableTimerHandle;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnPlayerAddItem OnPlayerAddItem;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
-	TMap<UItem*, int32> InventoryData;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	UItem* CurrentSlotItem;
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	int32 GetInventoryItemCount(UItem* Item) const;
@@ -72,6 +65,31 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GameOver();
 
+public:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SprintAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SlowAction;
+	
+	TArray<AActor*> CloseActors;
+	AActor* FocusActor;
+	
+	FTimerHandle FindInteractableTimerHandle;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerAddItem OnPlayerAddItem;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+	TMap<UItem*, int32> InventoryData;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	UItem* CurrentSlotItem;
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerUseItem OnPlayerUseItem;
 	
@@ -99,6 +117,34 @@ public:
 	UPROPERTY(EditAnywhere)
 	USceneComponent* SceneComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+	float SprintSpeed = 1000.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	float MaxEnergy = 100;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	float CurrentEnergy;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float EnergyRegenRate = 5.0f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float SprintCostEnergyPerSec = 35.0f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float SlowSpeed = 100.0f;
+	
+private:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool IsSprinting = false;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool IsSlow = false;
+	
+	float WalkSpeed;
+	
+	
+	UCharacterMovementComponent* CharacterMovementComponent;
 };
