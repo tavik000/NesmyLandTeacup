@@ -12,6 +12,7 @@ class MOUSELAND_TEACUP_API ANxEnemyCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+	
 	// Sets default values for this character's properties
 	ANxEnemyCharacter();
 

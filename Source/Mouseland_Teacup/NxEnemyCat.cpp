@@ -52,11 +52,13 @@ void ANxEnemyCat::BeginFistAttack()
 {
 	HittingActorList.Empty();
 	LeftFistCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	UE_LOG(LogTemp, Warning, TEXT("BeginFistAttack"));
 }
 
 void ANxEnemyCat::EndFistAttack()
 {
 	LeftFistCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	UE_LOG(LogTemp, Warning, TEXT("EndFistAttack"));
 }
 
 // Called every frame
