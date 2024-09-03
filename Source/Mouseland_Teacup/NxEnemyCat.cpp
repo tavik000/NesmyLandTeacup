@@ -61,6 +61,11 @@ void ANxEnemyCat::EndFistAttack()
 	UE_LOG(LogTemp, Warning, TEXT("EndFistAttack"));
 }
 
+bool ANxEnemyCat::IsAttacking() const
+{
+	return AnimInstance->Montage_IsPlaying(FistAttackMontage);
+}
+
 // Called every frame
 void ANxEnemyCat::Tick(float DeltaTime)
 {

@@ -5,6 +5,7 @@
 
 #include "NxEnemyCharacter.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 ANxEnemyAIController::ANxEnemyAIController()
@@ -60,4 +61,45 @@ void ANxEnemyAIController::ShowSightRadius() const
 	const float LocalPeripheralVisionDegree = AIEnemyPerception->GetPeripheralVisionDegree();
 	DrawDebugCone(GetWorld(), EnemyLocation, EnemyForwardVector, LocalSightRadius, LocalPeripheralVisionDegree,
 	              0.0f, 36, FColor::Cyan, false, 0.0f, 0, 0.0f);
+}
+
+UNxEnemyAIPerception* ANxEnemyAIController::GetAIEnemyPerception() const
+{
+	if (!IsValid(AIEnemyPerception))
+	{
+		return nullptr;
+	}
+	return AIEnemyPerception;
+}
+
+void ANxEnemyAIController::SetToWalkSpeed() const
+{
+	PossessCharacter->GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+void ANxEnemyAIController::SetToRunSpeed() const
+{
+	PossessCharacter->GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+}
+
+void ANxEnemyAIController::SetSightParameters(float NewSightRadius, float NewLoseSightRadius, float NewSightAngle)
+{
+	SightRadius = NewSightRadius;
+	LoseSightRadius = NewLoseSightRadius;
+	SightAngle = NewSightAngle;
+	if (IsValid(AIEnemyPerception))
+	{
+		AIEnemyPerception->SetSightRadius(NewSightRadius);
+		AIEnemyPerception->SetLoseSightRadius(NewLoseSightRadius);
+		AIEnemyPerception->SetPeripheralVisionDegree(NewSightAngle);
+	}
+}
+
+void ANxEnemyAIController::SetLoseSightRadius(float NewLoseSightRadius)
+{
+	LoseSightRadius = NewLoseSightRadius;
+	if (IsValid(AIEnemyPerception))
+	{
+		AIEnemyPerception->SetLoseSightRadius(NewLoseSightRadius);
+	}
 }

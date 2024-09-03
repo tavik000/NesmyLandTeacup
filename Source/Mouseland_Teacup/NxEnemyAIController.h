@@ -21,6 +21,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void ShowSightRadius() const;
+
+	UNxEnemyAIPerception* GetAIEnemyPerception() const;
+
+	void SetToWalkSpeed() const;
+	void SetToRunSpeed() const;
+
+	void SetSightParameters(float NewSightRadius, float NewLoseSightRadius, float NewSightAngle);
+	void SetLoseSightRadius(float NewLoseSightRadius);
 	
 protected:
 	// Called when the game starts or when spawned

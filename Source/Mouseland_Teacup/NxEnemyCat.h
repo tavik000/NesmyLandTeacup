@@ -18,6 +18,8 @@ public:
 
 	virtual void BeginFistAttack();
 	virtual void EndFistAttack();
+
+	bool IsAttacking() const;
 	
 protected:
 	
