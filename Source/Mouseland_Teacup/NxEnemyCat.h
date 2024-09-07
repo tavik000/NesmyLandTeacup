@@ -13,13 +13,22 @@ class MOUSELAND_TEACUP_API ANxEnemyCat : public ANxEnemyCharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ANxEnemyCat();
 
-	virtual void BeginFistAttack();
-	virtual void EndFistAttack();
+	virtual void Tick(float DeltaTime) override;
+	
+	void BeginFistAttack();
+	void EndFistAttack();
+
+	bool TrySleep();
+	bool TryWakeUp();
+	
 
 	bool IsAttacking() const;
+	
+	UFUNCTION(BlueprintCallable)
+	bool GetIsSleeping() const;
+	
 	
 protected:
 	
@@ -35,8 +44,6 @@ protected:
 
 	
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 
 protected:
@@ -49,5 +56,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float FistCollisionRadius = 32.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "AI")
+	bool IsSleeping = false;
 	
 };

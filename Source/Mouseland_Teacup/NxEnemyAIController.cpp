@@ -82,6 +82,16 @@ void ANxEnemyAIController::SetToRunSpeed() const
 	PossessCharacter->GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 }
 
+float ANxEnemyAIController::GetWalkingSpeed() const
+{
+	return WalkSpeed;
+}
+
+float ANxEnemyAIController::GetRunningSpeed() const
+{
+	return RunSpeed;
+}
+
 void ANxEnemyAIController::SetSightParameters(float NewSightRadius, float NewLoseSightRadius, float NewSightAngle)
 {
 	SightRadius = NewSightRadius;

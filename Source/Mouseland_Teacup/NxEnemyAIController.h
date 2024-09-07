@@ -24,8 +24,14 @@ public:
 
 	UNxEnemyAIPerception* GetAIEnemyPerception() const;
 
+	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetToWalkSpeed() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetToRunSpeed() const;
+
+	float GetWalkingSpeed() const;
+	float GetRunningSpeed() const;
 
 	void SetSightParameters(float NewSightRadius, float NewLoseSightRadius, float NewSightAngle);
 	void SetLoseSightRadius(float NewLoseSightRadius);

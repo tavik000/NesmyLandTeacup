@@ -61,9 +61,34 @@ void ANxEnemyCat::EndFistAttack()
 	UE_LOG(LogTemp, Warning, TEXT("EndFistAttack"));
 }
 
+bool ANxEnemyCat::TrySleep()
+{
+	if (IsAttacking())
+	{
+		return false;
+	}
+	IsSleeping = true;
+	return true;
+}
+
+bool ANxEnemyCat::TryWakeUp()
+{
+	if (IsSleeping)
+	{
+		IsSleeping = false;
+		return true;
+	}
+	return false;
+}
+
 bool ANxEnemyCat::IsAttacking() const
 {
 	return AnimInstance->Montage_IsPlaying(FistAttackMontage);
+}
+
+bool ANxEnemyCat::GetIsSleeping() const
+{
+	return IsSleeping;
 }
 
 // Called every frame

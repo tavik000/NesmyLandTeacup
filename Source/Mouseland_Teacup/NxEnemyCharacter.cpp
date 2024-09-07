@@ -27,3 +27,8 @@ void ANxEnemyCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+float ANxEnemyCharacter::GetSpeed() const
+{
+	return CharacterMovementComponent->Velocity.Size();
+}
+

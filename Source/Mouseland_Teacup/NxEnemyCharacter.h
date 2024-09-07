@@ -13,16 +13,16 @@ class MOUSELAND_TEACUP_API ANxEnemyCharacter : public ACharacter
 
 public:
 	
-	// Sets default values for this character's properties
 	ANxEnemyCharacter();
+	virtual void Tick(float DeltaTime) override;
 
+	float GetSpeed() const;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 protected:
 	TArray<AActor*> HittingActorList;
