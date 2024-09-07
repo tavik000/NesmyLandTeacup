@@ -30,7 +30,10 @@ EBTNodeResult::Type UNxBTTask_Sleep::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 			       TEXT("UNxBTService_SetNextPatrolPoint::OnBecomeRelevant: CurrentBlackboard is not valid"));
 			return EBTNodeResult::Failed;
 		}
+		
+		UE_LOG(LogTemp, Display, TEXT("UNxBTTask_Sleep::ExecuteTask: Sleeping, Lost Player"));
 		CurrentBlackboard->SetValueAsBool("IsPatrolling", false);
+		CurrentBlackboard->SetValueAsObject("TargetActor", nullptr);
 		return EBTNodeResult::Succeeded;
 	}
 

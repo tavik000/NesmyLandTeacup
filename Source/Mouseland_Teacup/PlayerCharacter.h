@@ -41,8 +41,7 @@ public:
 	void OnSlowEnd();
 
 	void FindAndHighlightInteractableObjectNearPlayer();
-	void AddInventoryItem(bool IsTeacup);
-
+	
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	int32 GetInventoryItemCount(UItem* Item) const;

@@ -30,21 +30,28 @@ public:
 	bool GetIsSleeping() const;
 	
 	
+	UFUNCTION(BlueprintCallable)
+	bool TryFistAttack() const;
+
+	void PlayFoundPlayerSound() const;
+	void PlayStartSleepingSound() const;
+	
 protected:
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable)
-	virtual void TryFistAttack();
 	
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-
 	
 public:
+	UPROPERTY(EditAnywhere)
+	USoundBase* FoundPlayerSound;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* StartSleepingSound;
+	
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
@@ -59,5 +66,4 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 	bool IsSleeping = false;
-	
 };

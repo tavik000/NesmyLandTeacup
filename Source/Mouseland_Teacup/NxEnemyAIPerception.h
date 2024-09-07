@@ -36,9 +36,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetLoseSightRadius(float InRadius);
 
+
+	
+
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
 
 public:
 

@@ -3,7 +3,9 @@
 
 #include "NxEnemyCat.h"
 
+#include "NxEnemyCatAIController.h"
 #include "PlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -27,9 +29,36 @@ void ANxEnemyCat::BeginPlay()
 	LeftFistCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ANxEnemyCat::OnOverlapBegin);
 }
 
-void ANxEnemyCat::TryFistAttack()
+bool ANxEnemyCat::TryFistAttack() const
 {
-	AnimInstance->Montage_Play(FistAttackMontage);
+	if (!IsAttacking())
+	{
+		AnimInstance->Montage_Play(FistAttackMontage);
+		return true;
+	}
+	return false;
+}
+
+void ANxEnemyCat::PlayFoundPlayerSound() const
+{
+	if (!IsValid(FoundPlayerSound))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ANxEnemyCat::PlayFoundPlayerSound: FoundPlayerSound is not valid"));
+		return;
+	}
+
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FoundPlayerSound, GetActorLocation());
+}
+
+void ANxEnemyCat::PlayStartSleepingSound() const
+{
+	if (!IsValid(StartSleepingSound))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ANxEnemyCat::PlayStartSleepingSound: StartSleepingSound is not valid"));
+		return;
+	}
+
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), StartSleepingSound, GetActorLocation());
 }
 
 void ANxEnemyCat::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -40,10 +69,17 @@ void ANxEnemyCat::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 	{
 		HittingActorList.Add(OtherActor);
 
-		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-		if (IsValid(PlayerCharacter))
+		APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
+		if (IsValid(Player))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hit Player"));
+			const ANxEnemyCatAIController* CatAIController = Cast<ANxEnemyCatAIController>(GetController());
+			if (!IsValid(CatAIController))
+			{
+				UE_LOG(LogTemp, Error, TEXT("ANxEnemyCat::OnOverlapBegin: CatAIController is not valid"));
+				return;
+			}
+			UE_LOG(LogTemp, Display, TEXT("ANxEnemyCat::OnOverlapBegin: Hit player"));
+			CatAIController->OnHitPlayer();
 		}
 	}
 }
@@ -52,13 +88,11 @@ void ANxEnemyCat::BeginFistAttack()
 {
 	HittingActorList.Empty();
 	LeftFistCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	UE_LOG(LogTemp, Warning, TEXT("BeginFistAttack"));
 }
 
 void ANxEnemyCat::EndFistAttack()
 {
 	LeftFistCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	UE_LOG(LogTemp, Warning, TEXT("EndFistAttack"));
 }
 
 bool ANxEnemyCat::TrySleep()
@@ -68,6 +102,7 @@ bool ANxEnemyCat::TrySleep()
 		return false;
 	}
 	IsSleeping = true;
+	PlayStartSleepingSound();
 	return true;
 }
 
