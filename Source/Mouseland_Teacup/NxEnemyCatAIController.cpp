@@ -6,6 +6,7 @@
 #include "NxEnemyCat.h"
 #include "PlayerCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Perception/AISense_Sight.h"
 
 
 ANxEnemyCatAIController::ANxEnemyCatAIController()
@@ -40,20 +41,27 @@ void ANxEnemyCatAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimul
 			UE_LOG(LogTemp, Error, TEXT("EnemyCat is null, Function name: %s"), *FString(__FUNCTION__));
 			return;
 		}
-
+		
+		const AActor* TargetActor = Cast<AActor>(Blackboard->GetValueAsObject("TargetActor"));
 		if (Stimulus.WasSuccessfullySensed() && !EnemyCat->GetIsSleeping())
 		{
-			UE_LOG(LogTemp, Display, TEXT("NxEnemyCatAIController::OnTargetPerceptionUpdated: Found player"));
-			Blackboard->SetValueAsObject("TargetActor", Actor);
-			EnemyCat->PlayFoundPlayerSound();
+			if (!IsValid(TargetActor))
+			{
+				UE_LOG(LogTemp, Display, TEXT("NxEnemyCatAIController::OnTargetPerceptionUpdated: Found player"));
+				Blackboard->SetValueAsObject("TargetActor", Actor);
+				EnemyCat->PlayFoundPlayerSound();
+			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Display,
-			       TEXT(
-				       "NxEnemyCatAIController::OnTargetPerceptionUpdated: Lost player, WasSuccessfullySensed: %d, IsSleeping: %d"
-			       ), Stimulus.WasSuccessfullySensed(), EnemyCat->GetIsSleeping());
-			Blackboard->SetValueAsObject("TargetActor", nullptr);
+			if (IsValid(TargetActor))
+			{
+				UE_LOG(LogTemp, Display,
+				       TEXT(
+					       "NxEnemyCatAIController::OnTargetPerceptionUpdated: Lost player, WasSuccessfullySensed: %d, IsSleeping: %d"
+				       ), Stimulus.WasSuccessfullySensed(), EnemyCat->GetIsSleeping());
+				Blackboard->SetValueAsObject("TargetActor", nullptr);
+			}
 		}
 	}
 }
@@ -75,4 +83,20 @@ void ANxEnemyCatAIController::OnPossess(APawn* InPawn)
 		return;
 	}
 	EnemyCat = Cast<ANxEnemyCat>(PossessCharacter);
+}
+
+void ANxEnemyCatAIController::OnWakeUp()
+{
+	TArray<AActor*> PerceivedActors;
+	EnemyAIPerception->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
+	for (AActor* PerceivedActor : PerceivedActors)
+	{
+		if (const APlayerCharacter* Player = Cast<APlayerCharacter>(PerceivedActor); IsValid(Player))
+		{
+			UE_LOG(LogTemp, Display, TEXT("NxEnemyCatAIController::OnWakeUp: Found player"));
+			Blackboard->SetValueAsObject("TargetActor", PerceivedActor);
+			EnemyCat->PlayFoundPlayerSound();
+			break;
+		}
+	}
 }

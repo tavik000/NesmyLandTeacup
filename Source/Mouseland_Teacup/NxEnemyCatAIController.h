@@ -19,6 +19,8 @@ public:
 	
 	void OnHitPlayer() const;
 	virtual void OnPossess(APawn* InPawn) override;
+
+	void OnWakeUp();
 	
 protected:
 	// Called when the game starts or when spawned

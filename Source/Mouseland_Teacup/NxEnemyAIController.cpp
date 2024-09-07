@@ -39,6 +39,7 @@ void ANxEnemyAIController::BeginPlay()
 		EnemyAIPerception->SetLoseSightRadius(LoseSightRadius);
 		EnemyAIPerception->SetPeripheralVisionDegree(SightAngle);
 		EnemyAIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &ANxEnemyAIController::OnTargetPerceptionUpdated);
+		
 	}
 }
 

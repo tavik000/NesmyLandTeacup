@@ -33,7 +33,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool TryFistAttack() const;
 
-	void PlayFoundPlayerSound() const;
+	void PlayFoundPlayerSound();
 	void PlayStartSleepingSound() const;
 	
 protected:
@@ -66,4 +66,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 	bool IsSleeping = false;
+	
+	UPROPERTY(VisibleAnywhere, Category = "AI")
+	class ANxEnemyCatAIController* CatAIController;
+
+	UPROPERTY()
+	UAudioComponent* FoundPlayerSoundAudioComponent;
 };

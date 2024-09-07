@@ -5,6 +5,7 @@
 
 #include "NxEnemyCatAIController.h"
 #include "PlayerCharacter.h"
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -27,6 +28,8 @@ void ANxEnemyCat::BeginPlay()
 
 	LeftFistCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LeftFistCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ANxEnemyCat::OnOverlapBegin);
+
+	CatAIController = Cast<ANxEnemyCatAIController>(GetController());
 }
 
 bool ANxEnemyCat::TryFistAttack() const
@@ -39,15 +42,23 @@ bool ANxEnemyCat::TryFistAttack() const
 	return false;
 }
 
-void ANxEnemyCat::PlayFoundPlayerSound() const
+void ANxEnemyCat::PlayFoundPlayerSound()
 {
 	if (!IsValid(FoundPlayerSound))
 	{
 		UE_LOG(LogTemp, Error, TEXT("ANxEnemyCat::PlayFoundPlayerSound: FoundPlayerSound is not valid"));
 		return;
 	}
+	if (IsValid(FoundPlayerSoundAudioComponent))
+	{
+		if (FoundPlayerSoundAudioComponent->IsPlaying())
+		{
+			return;
+		}
+	}
 
-	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FoundPlayerSound, GetActorLocation());
+	FoundPlayerSoundAudioComponent = UGameplayStatics::SpawnSoundAtLocation(
+		GetWorld(), FoundPlayerSound, GetActorLocation());
 }
 
 void ANxEnemyCat::PlayStartSleepingSound() const
@@ -72,7 +83,6 @@ void ANxEnemyCat::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 		APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
 		if (IsValid(Player))
 		{
-			const ANxEnemyCatAIController* CatAIController = Cast<ANxEnemyCatAIController>(GetController());
 			if (!IsValid(CatAIController))
 			{
 				UE_LOG(LogTemp, Error, TEXT("ANxEnemyCat::OnOverlapBegin: CatAIController is not valid"));
@@ -111,6 +121,7 @@ bool ANxEnemyCat::TryWakeUp()
 	if (IsSleeping)
 	{
 		IsSleeping = false;
+		CatAIController->OnWakeUp();
 		return true;
 	}
 	return false;
