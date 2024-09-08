@@ -35,7 +35,3 @@ bool UNxBTDecorator_Random::CalculateRawConditionValue(UBehaviorTreeComponent& O
 	return false;
 }
 
-void UNxBTDecorator_Random::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-}

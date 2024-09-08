@@ -23,9 +23,6 @@ public:
 	virtual void OnInstanceCreated(UBehaviorTreeComponent& OwnerComp) override;
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
 
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
 	
 	
 	// Trueを返す確率（0-100）
