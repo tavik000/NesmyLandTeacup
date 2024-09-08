@@ -6,7 +6,9 @@
 #include "NxEnemyCatAIController.h"
 #include "PlayerCharacter.h"
 #include "Components/AudioComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Perception/AISense_Touch.h"
 
 
 // Sets default values
@@ -27,7 +29,8 @@ void ANxEnemyCat::BeginPlay()
 	Super::BeginPlay();
 
 	LeftFistCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	LeftFistCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ANxEnemyCat::OnOverlapBegin);
+	LeftFistCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ANxEnemyCat::OnFistOverlapBegin);
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ANxEnemyCat::OnCapsuleComponentHit);
 
 	CatAIController = Cast<ANxEnemyCatAIController>(GetController());
 }
@@ -72,25 +75,43 @@ void ANxEnemyCat::PlayStartSleepingSound() const
 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), StartSleepingSound, GetActorLocation());
 }
 
-void ANxEnemyCat::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                                 const FHitResult& SweepResult)
+void ANxEnemyCat::OnFistOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                     const FHitResult& SweepResult)
 {
-	if (IsValid(OtherActor) && OtherActor != this && !HittingActorList.Contains(OtherActor))
+	if (APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor); IsValid(Player))
 	{
-		HittingActorList.Add(OtherActor);
-
-		APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
-		if (IsValid(Player))
+		UE_LOG(LogTemp, Display, TEXT("ANxEnemyCat::OnOverlapBegin: Player detected"));
+		if (OtherActor != this && !HittingActorList.Contains(OtherActor) && !IsSleeping && OverlappedComponent !=
+			GetCapsuleComponent())
 		{
+			// Hit Player
+			HittingActorList.Add(OtherActor);
+
 			if (!IsValid(CatAIController))
 			{
 				UE_LOG(LogTemp, Error, TEXT("ANxEnemyCat::OnOverlapBegin: CatAIController is not valid"));
 				return;
 			}
 			UE_LOG(LogTemp, Display, TEXT("ANxEnemyCat::OnOverlapBegin: Hit player"));
-			CatAIController->OnHitPlayer();
+			CatAIController->OnAttackHitPlayer();
+			Player->StartDizzy();
 		}
+	}
+}
+
+void ANxEnemyCat::OnCapsuleComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+                                        UPrimitiveComponent* OtherComp,
+                                        FVector NormalImpulse, const FHitResult& Hit)
+{
+	// Wake up if sleeping
+	if (OtherActor != this)
+	{
+		if (IsSleeping)
+		{
+			TryWakeUp();
+		}
+		CatAIController->OnCapsuleComponentHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
 	}
 }
 

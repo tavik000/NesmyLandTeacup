@@ -17,10 +17,13 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	
-	void OnHitPlayer() const;
+	void OnAttackHitPlayer() const;
 	virtual void OnPossess(APawn* InPawn) override;
+	
+	void OnCapsuleComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	void OnWakeUp();
+
 	
 protected:
 	// Called when the game starts or when spawned

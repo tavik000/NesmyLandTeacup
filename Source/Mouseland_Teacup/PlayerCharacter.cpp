@@ -7,12 +7,15 @@
 #include "Item.h"
 #include "TeacupStage.h"
 #include "Blueprint/UserWidget.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interface/InteractableInterface.h"
+#include "NiagaraComponent.h"
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -40,12 +43,12 @@ void APlayerCharacter::BeginPlay()
 
 bool APlayerCharacter::CanSprint() const
 {
-	return !IsJumping();
+	return !IsJumping() && !IsDizzy;
 }
 
 bool APlayerCharacter::CanSlow() const
 {
-	return !IsJumping();
+	return !IsJumping() && !IsDizzy;
 }
 
 bool APlayerCharacter::IsJumping() const
@@ -58,20 +61,23 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsSprinting)
+	if (!IsDizzy)
 	{
-		if (CurrentEnergy < SprintCostEnergyPerSec * DeltaTime)
+		if (IsSprinting)
 		{
-			OnSprintEnd();
+			if (CurrentEnergy < SprintCostEnergyPerSec * DeltaTime)
+			{
+				OnSprintEnd();
+			}
+			else
+			{
+				CurrentEnergy = FMath::Min(MaxEnergy, CurrentEnergy - SprintCostEnergyPerSec * DeltaTime);
+			}
 		}
 		else
 		{
-			CurrentEnergy = FMath::Min(MaxEnergy, CurrentEnergy - SprintCostEnergyPerSec * DeltaTime);
+			CurrentEnergy = FMath::Min(MaxEnergy, CurrentEnergy + EnergyRegenRate * DeltaTime);
 		}
-	}
-	else
-	{
-		CurrentEnergy = FMath::Min(MaxEnergy, CurrentEnergy + EnergyRegenRate * DeltaTime);
 	}
 }
 
@@ -148,7 +154,61 @@ void APlayerCharacter::OnSlowEnd()
 {
 	if (!IsSlow) return;
 	IsSlow = false;
+	if (IsDizzy)
+	{
+		return;
+	}
 	CharacterMovementComponent->MaxWalkSpeed = WalkSpeed;
+}
+
+void APlayerCharacter::StartDizzy()
+{
+	if (IsDizzy)
+	{
+		return;
+	}
+	CharacterMovementComponent->MaxWalkSpeed = DizzySpeed;
+	IsDizzy = true;
+
+	if (DizzyEffectAsset == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("DizzyEffectAsset is null, Function name: %s"), *FString(__FUNCTION__));
+		return;
+	}
+	UNiagaraSystem* DizzyEffectSystem = DizzyEffectAsset.LoadSynchronous();
+	if (!IsValid(DizzyEffectSystem))
+	{
+		UE_LOG(LogTemp, Error, TEXT("DizzyEffectSystem is null, Function name: %s"), *FString(__FUNCTION__));
+	}
+	DizzyEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(DizzyEffectSystem, SceneComponent, NAME_None,
+	                                                           DizzyEffectOffset, FRotator::ZeroRotator,
+	                                                           EAttachLocation::KeepRelativeOffset, true);
+
+	if (!IsValid(DizzySoundAsset))
+	{
+		UE_LOG(LogTemp, Error, TEXT("DizzySound is null, Function name: %s"), *FString(__FUNCTION__));
+	}
+	else
+	{
+		DizzySound = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), DizzySoundAsset, GetActorLocation());
+	}
+	GetWorldTimerManager().SetTimer(DizzyTimerHandle, this, &APlayerCharacter::EndDizzy, DizzyDuration, false);
+}
+
+void APlayerCharacter::EndDizzy()
+{
+	if (IsValid(DizzyEffect))
+	{
+		DizzyEffect->DestroyComponent();
+	}
+	IsDizzy = false;
+	CharacterMovementComponent->MaxWalkSpeed = WalkSpeed;
+	DizzySound->Stop();
+}
+
+bool APlayerCharacter::GetIsDizzy() const
+{
+	return IsDizzy;
 }
 
 void APlayerCharacter::FindAndHighlightInteractableObjectNearPlayer()
