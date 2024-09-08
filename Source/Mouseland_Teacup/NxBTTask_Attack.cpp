@@ -6,6 +6,8 @@
 #include "AIController.h"
 #include "NxEnemyCat.h"
 #include "NxEnemyCatAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UNxBTTask_Attack::UNxBTTask_Attack()
 {
@@ -16,7 +18,7 @@ EBTNodeResult::Type UNxBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	const ANxEnemyCat* EnemyCat = Cast<ANxEnemyCat>(OwnerComp.GetAIOwner()->GetPawn());
+	ANxEnemyCat* EnemyCat = Cast<ANxEnemyCat>(OwnerComp.GetAIOwner()->GetPawn());
 	if (!IsValid(EnemyCat))
 	{
 		UE_LOG(LogTemp, Error, TEXT("UNxBTTask_Attack::ExecuteTask: Enemy is not valid"));
@@ -35,6 +37,25 @@ EBTNodeResult::Type UNxBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 	CatAIController->StopMovement();
+
+
+	const UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
+	if (!IsValid(CurrentBlackboard))
+	{
+		UE_LOG(LogTemp, Error,
+		       TEXT("UNxBTService_SetNextPatrolPoint::OnBecomeRelevant: CurrentBlackboard is not valid"));
+		return EBTNodeResult::Failed;
+	}
+
+	const AActor* TargetActor = Cast<AActor>(CurrentBlackboard->GetValueAsObject(GetSelectedBlackboardKey()));
+	if (!IsValid(TargetActor))
+	{
+		return EBTNodeResult::Failed;
+	}
+	const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(
+		EnemyCat->GetActorLocation(), TargetActor->GetActorLocation());
+	EnemyCat->SetActorRotation(FRotator(EnemyCat->GetActorRotation().Pitch, LookAtRotation.Yaw,
+	                                    EnemyCat->GetActorRotation().Roll));
 
 	if (EnemyCat->TryFistAttack())
 	{
