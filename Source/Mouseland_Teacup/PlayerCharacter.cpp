@@ -139,6 +139,7 @@ void APlayerCharacter::OnSprintEnd()
 {
 	if (!IsSprinting) return;
 	IsSprinting = false;
+	if (IsDizzy) return;
 	CharacterMovementComponent->MaxWalkSpeed = WalkSpeed;
 }
 
@@ -170,11 +171,6 @@ void APlayerCharacter::StartDizzy()
 	CharacterMovementComponent->MaxWalkSpeed = DizzySpeed;
 	IsDizzy = true;
 
-	if (DizzyEffectAsset == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("DizzyEffectAsset is null, Function name: %s"), *FString(__FUNCTION__));
-		return;
-	}
 	UNiagaraSystem* DizzyEffectSystem = DizzyEffectAsset.LoadSynchronous();
 	if (!IsValid(DizzyEffectSystem))
 	{

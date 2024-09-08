@@ -158,7 +158,7 @@ private:
 	float DizzyDuration = 25.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	float DizzySpeed = 75.0f;
+	float DizzySpeed = 30.0f;
 	
 	bool IsDizzy = false;
 	FTimerHandle DizzyTimerHandle;

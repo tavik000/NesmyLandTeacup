@@ -36,12 +36,13 @@ void ANxEnemyCatAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimul
 		return;
 	}
 	UE_LOG(LogTemp, Display, TEXT("NxEnemyCatAIController::OnTargetPerceptionUpdated: Stimulus Sense Class %s"),
-           *Stimulus.Type.Name.ToString());
+	       *Stimulus.Type.Name.ToString());
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(Actor); IsValid(Player))
 	{
 		if (Player->GetIsDizzy())
 		{
 			UE_LOG(LogTemp, Display, TEXT("NxEnemyCatAIController::OnTargetPerceptionUpdated: Player is dizzy"));
+			EnemyAIPerception->ForgetActor(Actor);
 			return;
 		}
 		if (!IsValid(EnemyCat))
@@ -72,6 +73,7 @@ void ANxEnemyCatAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimul
 				       TEXT(
 					       "NxEnemyCatAIController::OnTargetPerceptionUpdated: Lost player, WasSuccessfullySensed: %d, IsSleeping: %d"
 				       ), Stimulus.WasSuccessfullySensed(), EnemyCat->GetIsSleeping());
+				EnemyAIPerception->ForgetActor(Actor);
 				Blackboard->SetValueAsObject("TargetActor", nullptr);
 			}
 		}
@@ -98,9 +100,10 @@ void ANxEnemyCatAIController::OnPossess(APawn* InPawn)
 }
 
 void ANxEnemyCatAIController::OnCapsuleComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+                                                    UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+                                                    const FHitResult& Hit)
 {
-	UAISense_Touch::ReportTouchEvent(GetWorld(),this, OtherActor, Hit.ImpactPoint);
+	UAISense_Touch::ReportTouchEvent(GetWorld(), this, OtherActor, Hit.ImpactPoint);
 }
 
 void ANxEnemyCatAIController::OnWakeUp()
