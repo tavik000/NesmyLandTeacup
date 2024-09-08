@@ -116,10 +116,6 @@ void APlayerCharacter::AlignFloor() const
 		float SlopeRoll;
 		UKismetMathLibrary::GetSlopeDegreeAngles(RightVector, FloorNormal, UpVector, SlopePitch, SlopeRoll);
 		SlopePitch = -SlopePitch;
-		if (FMath::Abs(SlopePitch) < 0.01f)
-		{
-			return;
-		}
 		const float MeshYaw = GetMesh()->GetComponentRotation().Yaw;
 		const float MeshPitch = GetMesh()->GetComponentRotation().Pitch;
 		const FRotator FloorRotation = FRotator(MeshPitch, MeshYaw, SlopePitch);
