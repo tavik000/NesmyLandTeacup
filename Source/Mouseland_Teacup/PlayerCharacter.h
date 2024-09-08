@@ -145,6 +145,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	USoundBase* DizzySoundAsset;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UItem *CheeseItemType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UParticleSystem* RestoreEnergyEffect;
+	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool IsSprinting = false;

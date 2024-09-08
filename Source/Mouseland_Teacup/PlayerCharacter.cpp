@@ -83,11 +83,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (IsSprinting)
 	{
-		CameraComponent->FieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, SprintFieldOfView, DeltaTime, FieldOfViewInterpSpeed);
+		CameraComponent->FieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, SprintFieldOfView, DeltaTime,
+		                                                FieldOfViewInterpSpeed);
 	}
 	else
 	{
-		CameraComponent->FieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, NormalFieldOfView, DeltaTime, FieldOfViewInterpSpeed);
+		CameraComponent->FieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, NormalFieldOfView, DeltaTime,
+		                                                FieldOfViewInterpSpeed);
 	}
 }
 
@@ -291,6 +293,15 @@ bool APlayerCharacter::AddInventoryItem(UItem* NewItem, int32 ItemCount)
 		return false;
 	}
 
+	if (NewItem == CheeseItemType)
+	{
+		CurrentEnergy = MaxEnergy;
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),
+			RestoreEnergyEffect,
+			GetActorLocation(), FRotator::ZeroRotator, 0.1f * FVector(1.0f, 1.0f, 1.0f));
+
+		return true;
+	}
 	int32 MaxCount = NewItem->MaxCount;
 	if (MaxCount <= 0)
 	{
@@ -394,7 +405,7 @@ void APlayerCharacter::GameOver()
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerController->SetInputMode(FInputModeUIOnly());
 	PlayerController->SetShowMouseCursor(true);
-	
+
 	if (TeacupStage->GetTeacupCount() >= 1)
 	{
 		if (!GameOverWidgetClass)
