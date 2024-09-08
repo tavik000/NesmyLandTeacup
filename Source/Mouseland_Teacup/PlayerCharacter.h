@@ -63,6 +63,9 @@ protected:
 	bool CanSprint() const;
 	bool CanSlow() const;
 	bool IsJumping() const;
+	
+private:
+	void AlignFloor() const;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -183,4 +186,6 @@ private:
 
 	UCharacterMovementComponent* CharacterMovementComponent;
 	UCameraComponent* CameraComponent;
+	
+	FTimerHandle AlignFloorTimerHandle;
 };

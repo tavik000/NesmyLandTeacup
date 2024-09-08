@@ -17,6 +17,7 @@
 #include "NiagaraComponent.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -39,7 +40,10 @@ void APlayerCharacter::BeginPlay()
 	CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent());
 
 	CameraComponent = Cast<UCameraComponent>(GetComponentByClass(UCameraComponent::StaticClass()));
+
 	WalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
+
+	GetWorldTimerManager().SetTimer(AlignFloorTimerHandle, this, &APlayerCharacter::AlignFloor, 0.1f, true);
 }
 
 bool APlayerCharacter::CanSprint() const
@@ -58,6 +62,7 @@ bool APlayerCharacter::IsJumping() const
 }
 
 // Called every frame
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -90,6 +95,35 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		CameraComponent->FieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, NormalFieldOfView, DeltaTime,
 		                                                FieldOfViewInterpSpeed);
+	}
+}
+
+void APlayerCharacter::AlignFloor() const
+{
+	const FVector MeshLocation = GetMesh()->GetComponentLocation();
+	const FVector MeshDownLocation = MeshLocation - 1000.f * FVector::UpVector;
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(this);
+	const bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResult, MeshLocation, MeshDownLocation, ECC_WorldStatic,
+	                                                        CollisionQueryParams);
+	if (IsHit)
+	{
+		FVector FloorNormal = HitResult.ImpactNormal;
+		FVector RightVector = GetActorRightVector();
+		FVector UpVector = GetActorUpVector();
+		float SlopePitch;
+		float SlopeRoll;
+		UKismetMathLibrary::GetSlopeDegreeAngles(RightVector, FloorNormal, UpVector, SlopePitch, SlopeRoll);
+		SlopePitch = -SlopePitch;
+		if (FMath::Abs(SlopePitch) < 0.01f)
+		{
+			return;
+		}
+		const float MeshYaw = GetMesh()->GetComponentRotation().Yaw;
+		const float MeshPitch = GetMesh()->GetComponentRotation().Pitch;
+		const FRotator FloorRotation = FRotator(MeshPitch, MeshYaw, SlopePitch);
+		GetMesh()->SetWorldRotation(FloorRotation);
 	}
 }
 
@@ -297,8 +331,9 @@ bool APlayerCharacter::AddInventoryItem(UItem* NewItem, int32 ItemCount)
 	{
 		CurrentEnergy = MaxEnergy;
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),
-			RestoreEnergyEffect,
-			GetActorLocation(), FRotator::ZeroRotator, 0.1f * FVector(1.0f, 1.0f, 1.0f));
+		                                         RestoreEnergyEffect,
+		                                         GetActorLocation(), FRotator::ZeroRotator,
+		                                         0.1f * FVector(1.0f, 1.0f, 1.0f));
 
 		return true;
 	}
