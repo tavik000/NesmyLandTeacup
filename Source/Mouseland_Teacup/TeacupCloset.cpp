@@ -2,6 +2,7 @@
 
 #include "PlayerCharacter.h"
 #include "Teacup.h"
+#include "TeacupStage.h"
 #include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -52,6 +53,7 @@ void ATeacupCloset::BeginPlay()
 	}
 
 	Subtitle = Cast<ASubtitle>(FoundActors[0]);
+	TeacupStage = Cast<ATeacupStage>(UGameplayStatics::GetActorOfClass(GetWorld(), ATeacupStage::StaticClass()));
 }
 
 
@@ -90,6 +92,17 @@ void ATeacupCloset::Interact_Implementation(APlayerCharacter* InteractCharacter)
 			{
 				Teacup->SetActorHiddenInGame(false);
 				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PlaceSound, GetActorLocation());
+
+				if (!IsValid(TeacupStage))
+				{
+					UE_LOG(LogTemp, Error, TEXT("ATeacupCloset::Interact_Implementation() TeacupStage is null"));
+					return;
+				}
+				if (TeacupStage->GetTeacupCount() == 0)
+				{
+					// Set All teacup, Game Win
+					PlayerCharacter->GameOver();
+				}
 				return;
 			}
 		}

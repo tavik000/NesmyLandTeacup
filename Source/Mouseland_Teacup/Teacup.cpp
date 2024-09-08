@@ -45,6 +45,7 @@ void ATeacup::TryAddMouseFriend()
 		if (Mouse->IsHidden())
 		{
 			Mouse->SetActorHiddenInGame(false);
+			
 			return;
 		}
 	}

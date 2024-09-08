@@ -74,5 +74,7 @@ public:
 	
 private:
 	FTimerHandle CheckAndUpdateWidgetVisibleTimer;
+
+	ATeacupStage* TeacupStage;
 	
 };

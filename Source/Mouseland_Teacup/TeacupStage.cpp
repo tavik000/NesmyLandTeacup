@@ -144,6 +144,7 @@ void ATeacupStage::Interact_Implementation(APlayerCharacter* InteractCharacter)
 			// for each teacup, and set the teacup to be visible
 			if (TryAddMouseFriend(PlayerCharacter))
 			{
+				Happy++;
 				PlayerCharacter->RemoveInventoryItem(RequireMouseFriendItemType, 1);
 
 				if (!PlaceSound)
@@ -296,24 +297,9 @@ int32 ATeacupStage::GetTeacupCount()
 	return Result;
 }
 
-int32 ATeacupStage::GetHappy()
+int32 ATeacupStage::GetHappy() const
 {
-	int32 Result = 0;
-	for (const ATeacup* Teacup : Teacups)
-	{
-		if (!Teacup->IsHidden())
-		{
-			for (AActor*
-			     MouseFriend : Teacup->MouseFriends)
-			{
-				if (!MouseFriend->IsHidden())
-				{
-					Result++;
-				}
-			}
-		}
-	}
-	return Result;
+	return Happy;
 }
 
 bool ATeacupStage::CanStart()

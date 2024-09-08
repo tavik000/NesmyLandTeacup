@@ -34,7 +34,9 @@ public:
 	void StopPlay();
 	
 	UFUNCTION(BlueprintCallable)
-	int32 GetHappy();
+	int32 GetHappy() const;
+	
+	int32 GetTeacupCount();
 	
 protected:
 	virtual void Tick(float DeltaTime) override;
@@ -79,7 +81,6 @@ protected:
 
 public:
 
-	int32 GetTeacupCount();
 
 
 	UPROPERTY(EditAnywhere)
@@ -114,5 +115,7 @@ public:
 	
 private:
 	FTimerHandle CheckAndUpdateWidgetVisibleTimer;
+
+	int32 Happy;
 	
 };

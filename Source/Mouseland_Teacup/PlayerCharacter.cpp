@@ -169,8 +169,8 @@ void APlayerCharacter::StartDizzy()
 		return;
 	}
 	CharacterMovementComponent->MaxWalkSpeed = DizzySpeed;
-	
-	
+
+
 	IsDizzy = true;
 
 	UNiagaraSystem* DizzyEffectSystem = DizzyEffectAsset.LoadSynchronous();
@@ -381,7 +381,10 @@ void APlayerCharacter::GameOver()
 	}
 	TeacupStage = Cast<ATeacupStage>(FoundActors[0]);
 
-
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PlayerController->SetInputMode(FInputModeUIOnly());
+	PlayerController->SetShowMouseCursor(true);
+	
 	if (TeacupStage->GetTeacupCount() >= 1)
 	{
 		if (!GameOverWidgetClass)
