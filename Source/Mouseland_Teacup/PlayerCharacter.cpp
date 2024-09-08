@@ -169,6 +169,8 @@ void APlayerCharacter::StartDizzy()
 		return;
 	}
 	CharacterMovementComponent->MaxWalkSpeed = DizzySpeed;
+	
+	
 	IsDizzy = true;
 
 	UNiagaraSystem* DizzyEffectSystem = DizzyEffectAsset.LoadSynchronous();
