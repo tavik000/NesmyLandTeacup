@@ -38,6 +38,7 @@ void APlayerCharacter::BeginPlay()
 
 	CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent());
 
+	CameraComponent = Cast<UCameraComponent>(GetComponentByClass(UCameraComponent::StaticClass()));
 	WalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 }
 
@@ -78,6 +79,15 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			CurrentEnergy = FMath::Min(MaxEnergy, CurrentEnergy + EnergyRegenRate * DeltaTime);
 		}
+	}
+
+	if (IsSprinting)
+	{
+		CameraComponent->FieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, SprintFieldOfView, DeltaTime, FieldOfViewInterpSpeed);
+	}
+	else
+	{
+		CameraComponent->FieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, NormalFieldOfView, DeltaTime, FieldOfViewInterpSpeed);
 	}
 }
 

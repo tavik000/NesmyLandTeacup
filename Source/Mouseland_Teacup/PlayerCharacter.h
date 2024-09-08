@@ -141,10 +141,10 @@ public:
 
 	UPROPERTY()
 	UAudioComponent* DizzySound;
-	
+
 	UPROPERTY(EditAnywhere)
 	USoundBase* DizzySoundAsset;
-	
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool IsSprinting = false;
@@ -159,13 +159,22 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float DizzySpeed = 30.0f;
-	
+
 	bool IsDizzy = false;
 	FTimerHandle DizzyTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	FVector DizzyEffectOffset = FVector::ZeroVector;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float SprintFieldOfView = 120.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float NormalFieldOfView = 90.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float FieldOfViewInterpSpeed = 1.f;
 
 	UCharacterMovementComponent* CharacterMovementComponent;
+	UCameraComponent* CameraComponent;
 };
