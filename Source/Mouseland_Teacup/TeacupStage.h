@@ -42,7 +42,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	bool TryAddMouseFriend(APlayerCharacter* PlayerCharacter);
 	virtual void Interact_Implementation(APlayerCharacter* InteractCharacter) override;
-	virtual void ToggleOutline_Implementation(bool bValue) override;
+	virtual void ToggleOutline_Implementation(bool NewValue) override;
 	virtual bool IsEnable_Implementation() override;
 	virtual void StartCheckAndUpdateWidgetVisibleTimer_Implementation() override;
 	virtual void CheckAndUpdateWidgetVisible_Implementation() override;
@@ -117,5 +117,7 @@ private:
 	FTimerHandle CheckAndUpdateWidgetVisibleTimer;
 
 	int32 Happy;
+
+	bool IsSpinning;
 	
 };

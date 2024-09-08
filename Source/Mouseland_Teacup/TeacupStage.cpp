@@ -61,6 +61,8 @@ void ATeacupStage::StartSpin()
 {
 	RotatingMovementComponent->RotationRate = FRotator(0.0f, 30.0f, 0.0f);
 	OnStartSpin.Broadcast();
+	IsSpinning = true;
+	InteractionHUD->SetVisibility(false);
 }
 
 void ATeacupStage::StopSpin()
@@ -68,6 +70,9 @@ void ATeacupStage::StopSpin()
 	RotatingMovementComponent->RotationRate = FRotator(0.0f, 0.0f, 0.0f);
 	InteractionHUD->SetSprite(CleanSprite);
 	OnStopSpin.Broadcast();
+
+	IsSpinning = false;
+	InteractionHUD->SetVisibility(true);
 }
 
 void ATeacupStage::Tick(float DeltaTime)
@@ -224,7 +229,7 @@ void ATeacupStage::StopPlay()
 	StopSpin();
 }
 
-void ATeacupStage::ToggleOutline_Implementation(bool bValue)
+void ATeacupStage::ToggleOutline_Implementation(bool NewValue)
 {
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	if (!IsActivated)
@@ -244,8 +249,19 @@ void ATeacupStage::ToggleOutline_Implementation(bool bValue)
 		InteractionHUD->SetSprite(CleanSprite);
 	}
 
-	IInteractableInterface::ToggleOutline_Implementation(bValue);
-	InteractionHUD->SetVisibility(bValue);
+	IInteractableInterface::ToggleOutline_Implementation(NewValue);
+
+	if (NewValue)
+	{
+		if (!IsSpinning)
+		{
+			InteractionHUD->SetVisibility(true);
+		}
+	}
+	else
+	{
+		InteractionHUD->SetVisibility(false);
+	}
 }
 
 bool ATeacupStage::IsEnable_Implementation()
