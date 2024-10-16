@@ -100,7 +100,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 void APlayerCharacter::AlignFloor() const
 {
-	const FVector MeshLocation = GetMesh()->GetComponentLocation();
+	const FVector MeshLocation = GetMesh()->GetComponentLocation() + 1.f * FVector::UpVector;
 	const FVector MeshDownLocation = MeshLocation - 1000.f * FVector::UpVector;
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionQueryParams;
@@ -109,12 +109,15 @@ void APlayerCharacter::AlignFloor() const
 	                                                        CollisionQueryParams);
 	if (IsHit)
 	{
+		// DrawDebugLine(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + 10.f * HitResult.ImpactNormal, FColor::Green, false, 1.0f, 0, 1.0f);
 		FVector FloorNormal = HitResult.ImpactNormal;
 		FVector RightVector = GetActorRightVector();
 		FVector UpVector = GetActorUpVector();
 		float SlopePitch;
 		float SlopeRoll;
 		UKismetMathLibrary::GetSlopeDegreeAngles(RightVector, FloorNormal, UpVector, SlopePitch, SlopeRoll);
+		// UE_LOG(LogTemp, Warning, TEXT("RightVector: %s, FloorNormal: %s, UpVector: %s, SlopePitch: %f, SlopeRoll: %f"),
+  //              *RightVector.ToString(), *FloorNormal.ToString(), *UpVector.ToString(), SlopePitch, SlopeRoll);
 		SlopePitch = -SlopePitch;
 		const float MeshYaw = GetMesh()->GetComponentRotation().Yaw;
 		const float MeshPitch = GetMesh()->GetComponentRotation().Pitch;
