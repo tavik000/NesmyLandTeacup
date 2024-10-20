@@ -16,6 +16,8 @@
 #include "Interface/InteractableInterface.h"
 #include "NiagaraComponent.h"
 #include "Components/AudioComponent.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -44,6 +46,8 @@ void APlayerCharacter::BeginPlay()
 	WalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 
 	GetWorldTimerManager().SetTimer(AlignFloorTimerHandle, this, &APlayerCharacter::AlignFloor, 0.1f, true);
+
+	LoadDizzyEffectAsset();
 }
 
 bool APlayerCharacter::CanSprint() const
@@ -60,6 +64,29 @@ bool APlayerCharacter::IsJumping() const
 {
 	return CharacterMovementComponent->IsFalling();
 }
+
+void APlayerCharacter::LoadDizzyEffectAsset()
+{
+	UE_LOG(LogTemp, Log, TEXT("DizzyEffectAsset requeset load"));
+	UAssetManager::Get().GetStreamableManager().RequestAsyncLoad(DizzyEffectAsset.ToSoftObjectPath(),
+	                                                             FStreamableDelegate::CreateUObject(
+		                                                             this, &APlayerCharacter::OnDizzyEffectLoaded));
+}
+
+void APlayerCharacter::OnDizzyEffectLoaded()
+{
+	UE_LOG(LogTemp, Log, TEXT("DizzyEffectLoaded"));
+
+	if (IsValid(DizzyEffectAsset.Get()))
+	{
+		UE_LOG(LogTemp, Log, TEXT("DizzyEffectAsset is valid"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("DizzyEffectAsset is null, Function name: %s"), *FString(__FUNCTION__));
+	}
+}
+
 
 // Called every frame
 
@@ -117,7 +144,7 @@ void APlayerCharacter::AlignFloor() const
 		float SlopeRoll;
 		UKismetMathLibrary::GetSlopeDegreeAngles(RightVector, FloorNormal, UpVector, SlopePitch, SlopeRoll);
 		// UE_LOG(LogTemp, Warning, TEXT("RightVector: %s, FloorNormal: %s, UpVector: %s, SlopePitch: %f, SlopeRoll: %f"),
-  //              *RightVector.ToString(), *FloorNormal.ToString(), *UpVector.ToString(), SlopePitch, SlopeRoll);
+		//              *RightVector.ToString(), *FloorNormal.ToString(), *UpVector.ToString(), SlopePitch, SlopeRoll);
 		SlopePitch = -SlopePitch;
 		const float MeshYaw = GetMesh()->GetComponentRotation().Yaw;
 		const float MeshPitch = GetMesh()->GetComponentRotation().Pitch;
@@ -218,7 +245,7 @@ void APlayerCharacter::StartDizzy()
 
 	IsDizzy = true;
 
-	UNiagaraSystem* DizzyEffectSystem = DizzyEffectAsset.LoadSynchronous();
+	UNiagaraSystem* DizzyEffectSystem = DizzyEffectAsset.Get();
 	if (!IsValid(DizzyEffectSystem))
 	{
 		UE_LOG(LogTemp, Error, TEXT("DizzyEffectSystem is null, Function name: %s"), *FString(__FUNCTION__));

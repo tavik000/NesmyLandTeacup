@@ -63,6 +63,9 @@ protected:
 	bool CanSprint() const;
 	bool CanSlow() const;
 	bool IsJumping() const;
+
+	void OnDizzyEffectLoaded();
+	void LoadDizzyEffectAsset();
 	
 private:
 	void AlignFloor() const;
