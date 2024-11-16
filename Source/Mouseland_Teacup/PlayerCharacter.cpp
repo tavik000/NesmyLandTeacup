@@ -250,6 +250,10 @@ void APlayerCharacter::StartDizzy()
 	{
 		UE_LOG(LogTemp, Error, TEXT("DizzyEffectSystem is null, Function name: %s"), *FString(__FUNCTION__));
 	}
+	else
+	{
+		// TODO: onload spawn effect delegate
+	}
 	DizzyEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(DizzyEffectSystem, SceneComponent, NAME_None,
 	                                                           DizzyEffectOffset, FRotator::ZeroRotator,
 	                                                           EAttachLocation::KeepRelativeOffset, true);
